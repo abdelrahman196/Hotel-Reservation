@@ -11,7 +11,15 @@ public class Reservation {
     private Date endDate;
     private int price;
 
-    
+    public Reservation(int ID, int customerID, int roomID, Date startDate, Date endDate, int price){
+      this.ID = ID;
+      this.currentID = customerID;
+      this.roomID = roomID;
+      this.services = new ArrayList<>();
+      this.startDate = startDate;
+      this.endDate = endDate;
+      this.price = price;
+    }
 
     public int getID() {
         return ID;

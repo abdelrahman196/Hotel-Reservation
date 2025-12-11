@@ -8,6 +8,11 @@ public class RoomManagement {
     private String roomsString;
     private int currentID;
 
+    public RoomManagement(String roomsString, int currentID){
+        this.roomsString = roomsString;
+        this.currentID = currentID;
+    }
+
     public String getRoomsString() {
         return roomsString;
     }
