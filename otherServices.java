@@ -4,16 +4,19 @@ import java.util.ArrayList;
 public class OtherService {
 
     
-    private ArrayList<Service> services;
+    private String services;
     private int currentID;
 
     
-    public OtherService() {
+    public OtherService(String services) {
+        this.services=services;
+        currentID=1;
     }
 
     
 
     public void addService(String name, String description, int price, boolean available) {
+
     }
 
     public void updateService(int id, String name, String description, int price, boolean available) {
@@ -23,8 +26,12 @@ public class OtherService {
     }
 
     public Service getService(int serviceID) {
-        return null;
+
     }
+    public Arraylist<Service> getServices(Arraylist<Integer> services) {
+
+    }
+
 
     public ArrayList<Service> getAvailableServices() {
         return null;

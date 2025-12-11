@@ -16,9 +16,6 @@ public class customer {
     public int getId() {
         return id;
     }
-    public void setId(int id) {
-        this.id = id;
-    }
     public String getName() {
         return name;
     }
@@ -40,10 +37,13 @@ public class customer {
     public ArrayList<Integer> getHistory() {
         return history;
     }
-
-    public ArrayList<Integer> getReservation() {
-        return reservations;
+    public void addReservation(int reservation){
+        this.history.add(new Integer(reservation) );
     }
-
-    public void addReservation
+    public void addReservation(ArrayList<Integer> reservation){
+        ArrayList<String> mergedList = new ArrayList<>();
+        mergedList.addAll(this.history);
+        mergedList.addAll(reservation);
+        this.history=mergedList;
+    }
 }
