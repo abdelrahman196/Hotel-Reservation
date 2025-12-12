@@ -1,5 +1,5 @@
 package app;
-
+import java.io.*;
 import java.util.ArrayList;
 
 public class OtherService {
@@ -17,7 +17,8 @@ public class OtherService {
 
 
     public void addService(String name, String description, int price, boolean available) {
-
+        File service_file = new File("")
+        PrintWriter
     }
 
     public void updateService(int id, String name, String description, int price, boolean available) {
