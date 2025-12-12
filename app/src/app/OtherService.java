@@ -1,3 +1,4 @@
+package app;
 
 import java.util.ArrayList;
 
@@ -25,10 +26,10 @@ public class OtherService {
     public void deleteService(int id) {
     }
 
-    public /*Service*/ void getService(int serviceID) {
+    public /*app.Service*/ void getService(int serviceID) {
 
     }
-    public /*ArrayList<Service>*/ void getServices(ArrayList<Integer> services) {
+    public /*ArrayList<app.Service>*/ void getServices(ArrayList<Integer> services) {
 
     }
 
