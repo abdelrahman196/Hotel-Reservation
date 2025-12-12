@@ -1,11 +1,11 @@
 import java.util.ArrayList;
 
-public class customer {
+public class Customer {
     protected int id;
     protected String name;
     protected String phone;
     private int currentRoom;
-    public customer(int id, String name, String phone, int currentRoom) {
+    public Customer(int id, String name, String phone, int currentRoom) {
         this.id = id;
         this.name = name;
         this.phone = phone;
@@ -32,5 +32,8 @@ public class customer {
     public void setCurrentRoom(int currentRoom) {
         this.currentRoom = currentRoom;
     }
-
+    public String parsePrint(){
+        String tmp= "ID:"+ this.id +"\n" +"Name:"+ this.name +"\n"+"phone:"+ this.phone +"\n"+"CurrentRoom:"+ this.currentRoom +"\n";
+        return tmp;
+    }
 }

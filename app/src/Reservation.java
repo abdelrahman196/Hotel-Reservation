@@ -1,5 +1,6 @@
 import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
 
 public class Reservation {
 
@@ -12,13 +13,13 @@ public class Reservation {
     private int price;
 
     public Reservation(int ID, int customerID, int roomID, Date startDate, Date endDate, int price){
-      this.ID = ID;
-      this.currentID = customerID;
-      this.roomID = roomID;
-      this.services = new ArrayList<>();
-      this.startDate = startDate;
-      this.endDate = endDate;
-      this.price = price;
+        this.ID = ID;
+        this.customerID = customerID;
+        this.roomID = roomID;
+        this.services = new ArrayList<>();
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.price = price;
     }
 
     public int getID() {
@@ -77,7 +78,7 @@ public class Reservation {
         this.price = price;
     }
 
-    
+
 
     public void addService(int serviceID) {
     }
