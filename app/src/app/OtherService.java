@@ -235,11 +235,12 @@ public class OtherService {
         return  result1;
     }
 
-    public void addServiceToClient(int clientID, int serviceID) {
-
+    public static void addServiceToClient(int clientID, int serviceID) {
+        Room room = RoomManagement.getRoomWithClient(clientID);
+        RoomManagement.AssignRoomWithService(serviceID, room.getId());
     }
 
-    public String getStaticReportServiceID(int serviceID) {
+    public static String getStaticReportServiceID(int serviceID) {
         Service service1 = getService(serviceID);
         return "Name:" + service1.getName() + "\nDescription:" + service1.getDescription() + "\nPrice:" + service1.getPrice() + "$/day\n" + (service1.isAvailable()?"service is available":"service is not available");
     }

@@ -6,22 +6,32 @@ import java.util.Date;
 public class Room {
     private int id;
     private ArrayList<Customer> residents;
-    private ArrayList<Integer> services;
+    private ArrayList<Service> services;
     private String type;
     private int price;
     private boolean available;
     private Date entryDate;
     private Date expirationDate;
 
-    public Room(int id, String type, int price, boolean isOccupied) {
+    public Room(int id, String type, int price, boolean isAvailable) {
         this.id = id;
         this.type = type;
         this.price = price;
-        this.available = available;
+        this.available =isAvailable;
         this.residents = new ArrayList<>();
         this.services = new ArrayList<>();
         this.entryDate = new Date();
         this.expirationDate = new Date();
+    }
+    public Room(int id, String type, int price, boolean isAvailable,long entryDate,long expirationDate,ArrayList<Integer> Residents,ArrayList<Integer> Services) {
+        this.id = id;
+        this.type = type;
+        this.price = price;
+        this.available =isAvailable;
+        this.residents = AdminController.getCustomers(Residents);
+        this.services = OtherService.getServices(Services);
+        this.entryDate = new Date(entryDate);
+        this.expirationDate = new Date(expirationDate);
     }
 
     public int getId() {
@@ -47,9 +57,9 @@ public class Room {
         this.type = type;
     }
     public void addService(int serviceID) {
-        services.add(serviceID);
+
     }
-    public ArrayList<Integer> getService() {
+    public ArrayList<Service> getServices() {
         return services;
     }
     public Date getEntryDate() {
@@ -63,5 +73,34 @@ public class Room {
     }
     public void setExpirationDate(Date expirationDate) {
         this.expirationDate = expirationDate;
+    }
+    public String parsePrint(){
+        StringBuilder Residents = new StringBuilder();
+        StringBuilder Services =new StringBuilder();
+        if(!available){
+            for(int i=0;i<residents.size();i++){
+                Residents.append(residents.get(i).getName()).append(",");
+            }
+            for(int i=0;i<services.size();i++){
+                Services.append(services.get(i).getName()).append(",");
+            }
+        }
+        return "ID:"+id+ "\ntype:" + type + "\nprice" + String.valueOf(price) + ((available)?"\nthe room is available":("\nthe room is occupied since:"+entryDate.toString()+" until:" + expirationDate.toString()+"\nresidents:"+Residents.toString() +"\nServices:" + Services.toString()));
+    }
+    public String parseStore(){
+        StringBuilder Residents = new StringBuilder();
+        StringBuilder Services =new StringBuilder();
+        if(!available){
+            for(int i=0;i<residents.size();i++){
+                Residents.append(residents.get(i).getId()).append(":");
+            }
+            for(int i=0;i<services.size();i++){
+                Services.append(services.get(i).getID()).append(":");
+            }
+            return String.valueOf(this.getId()) + "/" +type +"/" +String.valueOf(price) +"/"+"false"+"/"+entryDate.getTime()+"/"+expirationDate.getTime()+"/"+Residents.toString()+"/"+Services.toString();
+        }
+        else{
+            return String.valueOf(this.getId()) + "/" +type +"/" +String.valueOf(price) +"/"+"false"+"////";
+        }
     }
 }

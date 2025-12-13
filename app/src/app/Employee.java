@@ -36,21 +36,6 @@ public class Employee {
     public String getPassword() {
         return password;
     }
-    public static ArrayList<Employee> getEmployee(){
-        ArrayList<Employee> attributes =new ArrayList<>();
-        try{
-            File employees = new File("app/src/app/DataBase/Employees");
-            Scanner dataSS = new Scanner(employees);
-            String read = dataSS.nextLine();
-            String[] records = read.split(",");
-            for(int i=0;i< records.length;i++){
-                String[] read2 = records[i].split("/");
-                attributes.add(new Employee(Integer.parseInt(read2[0]), read2[1],read2[2], read2[3]));
-            }
 
-        } catch (FileNotFoundException e) {
-            System.out.println("IDC");
-        }
-        return attributes;
-    }
+
 }
