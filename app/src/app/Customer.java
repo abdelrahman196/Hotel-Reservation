@@ -1,6 +1,9 @@
 package app;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Customer {
     protected int id;
@@ -13,6 +16,8 @@ public class Customer {
         this.phone = phone;
         this.currentRoom = currentRoom;
     }
+
+
     public int getId() {
         return id;
     }
@@ -34,9 +39,22 @@ public class Customer {
     public void setCurrentRoom(int currentRoom) {
         this.currentRoom = currentRoom;
     }
-    public String parsePrint(){
-        String tmp= "ID:"+ this.id +"\n" +"Name:"+ this.name +"\n"+"phone:"+ this.phone +"\n"+"CurrentRoom:"+ this.currentRoom +"\n";
-        return tmp;
+    public static ArrayList<Customer> getCustomer(){
+        ArrayList<Customer> arr1=new ArrayList<>();
+        try{
+            File data = new File("app/src/app/DataBase/Customers.txt");
+            Scanner dataS = new Scanner(data);
+            String tmp=dataS.nextLine();
+            String[] arr= tmp.split(",");
+            for(int i=0;i< arr.length;i++){
+                String[] tmp2 = arr[i].split("/");
+                arr1.add(new Customer(Integer.parseInt(tmp2[0]), tmp2[1],tmp2[2], Integer.parseInt(tmp2[3])));
+            }
+
+        } catch (FileNotFoundException e) {
+            System.out.println("IDC");
+        }
+        return arr1;
     }
     public static int exist(){
         return 1;
