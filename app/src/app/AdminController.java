@@ -14,7 +14,7 @@ public class AdminController {
 
     public static void main(String[] args){
             try{
-                File customers = new File("DataBase/Customers.txt");
+                File customers = new File("DataBase/Customers");
 
                 if(customers.exists()){
                     Scanner customers_file = new Scanner(customers);

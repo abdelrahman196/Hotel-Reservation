@@ -35,10 +35,6 @@ public class Customer {
         this.currentRoom = currentRoom;
     }
     public String parsePrint(){
-        String tmp= "ID:"+ this.id +"\n" +"Name:"+ this.name +"\n"+"phone:"+ this.phone +"\n"+"CurrentRoom:"+ this.currentRoom +"\n";
-        return tmp;
-    }
-    public static int exist(){
-        return 1;
+        return  "ID:"+ this.id +"\n" +"Name:"+ this.name +"\n"+"phone:"+ this.phone +"\n"+"CurrentRoom:"+ this.currentRoom +"\n";
     }
 }
