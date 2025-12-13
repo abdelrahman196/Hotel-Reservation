@@ -55,4 +55,9 @@ public class Service {
     public boolean isAvailable() {
         return available;
     }
+
+
+    public String parsePrint(){
+        return ("ID:" + ID + "\nName:" + name + "\ndescription:" + description + "\nprice:" + String.valueOf(price));
+    }
 }
