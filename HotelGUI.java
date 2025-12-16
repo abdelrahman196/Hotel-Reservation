@@ -1,10 +1,20 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
+
+class GUIStarter implements Runnable {
+    @Override
+    public void run() {
+        HotelGUI gui = new HotelGUI();
+        gui.setVisible(true);
+    }
+}
 
 public class HotelGUI extends JFrame {
     // *** Data Lists ***
@@ -21,17 +31,18 @@ public class HotelGUI extends JFrame {
     private DefaultTableModel servModel;    private JTable servTable;
     private DefaultTableModel empModel;     private JTable empTable;
 
-    private JCheckBox filterBox;
-    private JComboBox<String> custBox;
+    private JCheckBox filterBox;                // Checkbox for "Available Only"
+    private JComboBox<String> filterTypeBox;    // Dropdown for Room Type filtering
     private JComboBox<String> roomBox;
+    private JComboBox<String> custBox;
     private JComboBox<String> activeResBox;
     private JTextArea billArea;
 
     // *** Buttons ***
     private JButton addCustBtn, updateCustBtn, deleteCustBtn;
     private JButton addRoomBtn, updateRoomBtn, deleteRoomBtn, filterBtn;
-    private JButton addServiceBtn, updateServiceBtn, deleteServiceBtn;
-    private JButton refreshListsBtn, bookBtn, addResServiceBtn, checkoutBtn;
+    private JButton addServiceBtn, updateServiceBtn, deleteServiceBtn, reportServiceBtn;
+    private JButton refreshListsBtn, bookBtn, addResServiceBtn, checkoutBtn, viewCheckoutBtn;
     private JButton addEmpBtn, updateEmpBtn, deleteEmpBtn;
 
     public HotelGUI() {
@@ -100,8 +111,13 @@ public class HotelGUI extends JFrame {
         addRoomBtn = new JButton("Add Room");
         updateRoomBtn = new JButton("Update Room");
         deleteRoomBtn = new JButton("Delete Room");
-        filterBox = new JCheckBox("Show Available Only");
-        filterBtn = new JButton("Filter");
+
+        JLabel typeLabel = new JLabel("Type:");
+        String[] filterTypes = {"All", "Single", "Double", "Suite"};
+        filterTypeBox = new JComboBox<>(filterTypes);
+
+        filterBox = new JCheckBox("Available Only");
+        filterBtn = new JButton("Refresh");
 
 //        addRoomBtn.addActionListener(this);
 //        updateRoomBtn.addActionListener(this);
@@ -111,6 +127,9 @@ public class HotelGUI extends JFrame {
         controls.add(addRoomBtn);
         controls.add(updateRoomBtn);
         controls.add(deleteRoomBtn);
+        controls.add(Box.createHorizontalStrut(20));
+        controls.add(typeLabel);
+        controls.add(filterTypeBox);
         controls.add(filterBox);
         controls.add(filterBtn);
 
@@ -130,14 +149,17 @@ public class HotelGUI extends JFrame {
         addServiceBtn = new JButton("Add Service");
         updateServiceBtn = new JButton("Update Service");
         deleteServiceBtn = new JButton("Delete Service");
-
+        reportServiceBtn = new JButton("Generate Report");
 //        addServiceBtn.addActionListener(this);
 //        updateServiceBtn.addActionListener(this);
 //        deleteServiceBtn.addActionListener(this);
+//        reportServiceBtn.addActionListener(this);
 
         controls.add(addServiceBtn);
         controls.add(updateServiceBtn);
         controls.add(deleteServiceBtn);
+        controls.add(Box.createHorizontalStrut(20));
+        controls.add(reportServiceBtn);
 
         panel.add(new JScrollPane(servTable), BorderLayout.CENTER);
         panel.add(controls, BorderLayout.NORTH);
@@ -159,18 +181,20 @@ public class HotelGUI extends JFrame {
         bookBtn = new JButton("Assign Room to Customer");
         addResServiceBtn = new JButton("Add Service to Reservation");
         checkoutBtn = new JButton("Checkout");
+        viewCheckoutBtn = new JButton("View Near Checkout (2 Days)");
 
 //        refreshListsBtn.addActionListener(this);
 //        bookBtn.addActionListener(this);
 //        addResServiceBtn.addActionListener(this);
 //        checkoutBtn.addActionListener(this);
+//        viewCheckoutBtn.addActionListener(this);
 
         controls.add(refreshListsBtn);
         controls.add(new JLabel(" <- Click here first to load data"));
         controls.add(bookBtn);
         controls.add(addResServiceBtn);
+        controls.add(viewCheckoutBtn);
         controls.add(checkoutBtn);
-        controls.add(new JLabel(" <- Click here last to show bill"));
 
         JPanel Data = new JPanel(new GridLayout(1, 2));
         Data.add(custBox);
@@ -235,12 +259,14 @@ public class HotelGUI extends JFrame {
         else if (source == addServiceBtn) addNewService();
         else if (source == updateServiceBtn) updateService();
         else if (source == deleteServiceBtn) deleteService();
+        else if (source == reportServiceBtn) generateServiceReport();
 
         // Reservation Actions
         else if (source == refreshListsBtn) refreshResData();
         else if (source == bookBtn) bookRoom();
         else if (source == addResServiceBtn) addServiceToReservation();
         else if (source == checkoutBtn) checkoutGuest();
+        else if (source == viewCheckoutBtn) viewNearCheckout();
 
         // Employee Actions
         else if (source == addEmpBtn) addNewEmployee();
@@ -409,6 +435,27 @@ public class HotelGUI extends JFrame {
         refreshServTable();
     }
 
+    private void generateServiceReport() {
+        StringBuilder report = new StringBuilder();
+        report.append("     --- Service Usage Statistics ---\n\n");
+        report.append(String.format("%-20s %-10s %-10s\n", "Service Name", "Price", "Times Used"));
+        report.append("------------------------------------------\n");
+        int totalUsage = 0;
+        double totalRevenue = 0;
+        for(Service s : services) {
+            report.append(String.format("%-20s $%-9.2f %-10d\n", s.getName(), s.getPrice(), s.getUsageCount()));
+            totalUsage += s.getUsageCount();
+            totalRevenue += (s.getPrice() * s.getUsageCount());
+        }
+        report.append("------------------------------------------\n");
+        report.append("Total Services Provided: " + totalUsage + "\n");
+        report.append("Total Revenue from Services: $" + String.format("%.2f", totalRevenue));
+        JTextArea textArea = new JTextArea(report.toString());
+        textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        textArea.setEditable(false);
+        JOptionPane.showMessageDialog(this, new JScrollPane(textArea), "Statistical Report", JOptionPane.INFORMATION_MESSAGE);
+    }
+
     // Reservation Logic
     private void refreshResData() {
         custBox.removeAllItems();
@@ -444,9 +491,12 @@ public class HotelGUI extends JFrame {
     private void addServiceToReservation() {
         Reservation res = (Reservation) activeResBox.getSelectedItem();
         if (res == null) return;
-        JComboBox<Service> servBox = new JComboBox<>(services.toArray(new Service[0]));
-        if (JOptionPane.showConfirmDialog(this, servBox, "Pick Service", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
-            res.addService((Service) servBox.getSelectedItem());
+        JComboBox<Service> sBox = new JComboBox<>(services.toArray(new Service[0]));
+        if (JOptionPane.showConfirmDialog(this, sBox, "Pick Service", JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
+            Service s = (Service) sBox.getSelectedItem();
+            res.addService(s);
+            s.incrementUsage();
+            FileManager.saveServices(services);
             JOptionPane.showMessageDialog(this, "Service Added!");
         }
     }
@@ -459,6 +509,25 @@ public class HotelGUI extends JFrame {
         reservations.remove(res);
         activeResBox.removeItem(res);
         FileManager.saveRooms(rooms);
+    }
+
+    private void viewNearCheckout() {
+        StringBuilder sb = new StringBuilder("Guests checking out within 2 days:\n\n");
+        LocalDate today = LocalDate.now();
+        boolean isFound = false;
+        for (Reservation res : reservations) {
+            LocalDate checkout = res.getCheckOutDate();
+            long daysUntil = ChronoUnit.DAYS.between(today, checkout);
+            if (daysUntil >= 0 && daysUntil <= 2) {
+                sb.append(res.getCustomer().getName())
+                        .append(" (Room ").append(res.getRoom().getId()).append(")")
+                        .append(" - Checkout: ").append(checkout)
+                        .append(" (").append(daysUntil).append(" days left)\n");
+                isFound = true;
+            }
+        }
+        if (!isFound) sb.append("No checkouts approaching in the next 2 days.");
+        JOptionPane.showMessageDialog(this, sb.toString(), "Near Checkout", JOptionPane.INFORMATION_MESSAGE);
     }
 
     // Employee Logic
@@ -529,6 +598,4 @@ public class HotelGUI extends JFrame {
         for (Employee e : employees) empModel.addRow(new Object[]{e.getId(), e.getName(), e.getPhone(), e.getJobTitle()});
     }
     */
-
 }
-
