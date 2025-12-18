@@ -122,7 +122,7 @@ public class OtherService {
     }
 
     public static Service getService(int id) {
-        Service result1 = new Service(1,"sofa","rich",1000,false);
+        Service result1 = new Service(1,"sofa", 1000);
         File service_file = new File(OtherService.service);
         try {
             Scanner input = new Scanner(service_file);
@@ -136,7 +136,7 @@ public class OtherService {
                     String[] current = Services[i].split("/");
 
                     if((Integer.parseInt(current[0])==id)){
-                        result1 = new Service(Integer.parseInt(current[0]),current[1],current[2],Integer.parseInt(current[3]),(current[4]=="true")?true:false);
+                        result1 = new Service(Integer.parseInt(current[0]),current[1], Integer.parseInt(current[3]));
                     }
 
 
@@ -173,7 +173,7 @@ public class OtherService {
                     String[] current = Services[i].split("/");
 
                     if(services.contains((Integer.parseInt(current[0]))) ){
-                        result1.add(new Service(Integer.parseInt(current[0]),current[1],current[2],Integer.parseInt(current[3]),(current[4]=="true")?true:false));
+                        result1.add(new Service(Integer.parseInt(current[0]),current[1], Integer.parseInt(current[3])));
                     }
 
 
@@ -212,7 +212,7 @@ public class OtherService {
                     String[] current = Services[i].split("/");
 
                     if(current[4].equals("true") ){
-                        result1.add(new Service(Integer.parseInt(current[0]),current[1],current[2],Integer.parseInt(current[3]),(current[4]=="true")?true:false));
+                        result1.add(new Service(Integer.parseInt(current[0]),current[1], Integer.parseInt(current[3])));
                     }
 
 
@@ -235,13 +235,8 @@ public class OtherService {
         return  result1;
     }
 
-    public static void addServiceToClient(int clientID, int serviceID) {
-        Room room = RoomManagement.getRoomWithClient(clientID);
-        RoomManagement.AssignRoomWithService(serviceID, room.getId());
-    }
-
     public static String getStaticReportServiceID(int serviceID) {
         Service service1 = getService(serviceID);
-        return "Name:" + service1.getName() + "\nDescription:" + service1.getDescription() + "\nPrice:" + service1.getPrice() + "$/day\n" + (service1.isAvailable()?"service is available":"service is not available");
+        return "Name:" + service1.getName() + "\nPrice:" + service1.getPrice() + "$/day\n" + (service1.isAvailable()?"service is available":"service is not available");
     }
 }

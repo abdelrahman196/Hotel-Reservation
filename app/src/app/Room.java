@@ -28,7 +28,6 @@ public class Room {
         this.type = type;
         this.price = price;
         this.available =isAvailable;
-        this.residents = AdminController.getCustomers(Residents);
         this.services = OtherService.getServices(Services);
         this.entryDate = new Date(entryDate);
         this.expirationDate = new Date(expirationDate);
@@ -95,12 +94,16 @@ public class Room {
                 Residents.append(residents.get(i).getId()).append(":");
             }
             for(int i=0;i<services.size();i++){
-                Services.append(services.get(i).getID()).append(":");
+                Services.append(services.get(i).getId()).append(":");
             }
             return String.valueOf(this.getId()) + "/" +type +"/" +String.valueOf(price) +"/"+"false"+"/"+entryDate.getTime()+"/"+expirationDate.getTime()+"/"+Residents.toString()+"/"+Services.toString();
         }
         else{
             return String.valueOf(this.getId()) + "/" +type +"/" +String.valueOf(price) +"/"+"false"+"////";
         }
+    }
+
+    public void setPrice(double price) {
+        this.price = (int) price;
     }
 }

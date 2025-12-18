@@ -2,187 +2,223 @@ package app;
 
 import java.io.*;
 import java.util.*;
+
 public class AdminController {
-    private static String employees="src/app/DataBase/Employees";
-    private static String customers="src/app/DataBase/Customers";
-    private String reservations;
-    public AdminController(String employee, String customers,String reservations) {
-        this.employees = employee;
-        this.customers = customers;
-        this.reservations = reservations;
+    // Use consistent file paths
+    private static final String EMPLOYEES_FILE = "src/app/DataBase/Employees";
+    private static final String CUSTOMERS_FILE = "src/app/DataBase/Customers";
+    private static final String ROOMS_FILE = "app/src/app/DataBase/Rooms";
+    private static final String SERVICES_FILE = "app/src/app/DataBase/Services";
+
+    // Save methods
+    public static void saveRooms(List<Room> rooms) {
+        saveToFile(ROOMS_FILE, rooms, r ->
+                r.getId() + "/" + r.getType() + "/" + r.getPrice() + "/" + (r.isAvailable() ? "1" : "0"));
     }
 
-
-
-    public void addCustomer(String name,String phone){
-
+    public static void saveCustomers(List<Customer> customers) {
+        saveToFile(CUSTOMERS_FILE, customers, c ->
+                c.getId() + "/" + c.getName() + "/" + c.getPhone());
     }
-    public void deleteCustomer(int id){
 
+    public static void saveServices(List<Service> services) {
+        saveToFile(SERVICES_FILE, services, s ->
+                s.getId() + "/" + s.getName() + "/" + s.getPrice() + "/" + s.getUsageCount());
     }
-    public  static void updateCustomer(int id, String name,String phone,int currentRoomID){
-        Customer arr1=new Customer(1,"SOFA","01013292553",0);
-        try{
-            File data = new File(customers);
-            Scanner dataS = new Scanner(data);
-            String tmp=dataS.nextLine();
-            String[] arr= tmp.split(",");
-            for(int i=0;i< arr.length;i++){
-                String[] tmp2 = arr[i].split("/");
-                if(Integer.parseInt(tmp2[0])==id){
-                    arr[i] = String.valueOf(id) + "/" + name + "/" + phone + "/"+String.valueOf(currentRoomID) ;
-                    break;
+
+    public static void saveEmployees(List<Employee> employees) {
+        saveToFile(EMPLOYEES_FILE, employees, e ->
+                e.getId() + "/" + e.getName() + "/" + e.getPhone() + "/" + e.getJobTitle());
+    }
+
+    // Generic save method
+    private static <T> void saveToFile(String filename, List<T> items, Serializer<T> serializer) {
+        // Create directory if it doesn't exist
+        File file = new File(filename);
+        file.getParentFile().mkdirs();
+
+        try (PrintWriter pw = new PrintWriter(new FileWriter(file))) {
+            for (T item : items) {
+                pw.println(serializer.serialize(item));
+            }
+            System.out.println("✓ Saved " + items.size() + " items to " + file.getAbsolutePath());
+        } catch (IOException e) {
+            System.err.println("✗ Error saving to " + filename + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    interface Serializer<T> {
+        String serialize(T item);
+    }
+
+    // Get all employees
+    public static ArrayList<Employee> getEmployees() {
+        ArrayList<Employee> employees = new ArrayList<>();
+        try {
+            File file = new File(EMPLOYEES_FILE);
+            if (!file.exists()) {
+                System.out.println("⚠ Employee file doesn't exist: " + EMPLOYEES_FILE);
+                return employees;
+            }
+
+            Scanner scanner = new Scanner(file);
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine().trim();
+                if (!line.isEmpty()) {
+                    String[] parts = line.split("/");
+                    if (parts.length >= 4) {
+                        int id = Integer.parseInt(parts[0]);
+                        String name = parts[1];
+                        String phone = parts[2];
+                        String jobTitle = parts[3];
+                        employees.add(new Employee(id, name, phone, jobTitle));
+                    } else if (parts.length == 3) {
+                        // Handle old format without jobTitle
+                        int id = Integer.parseInt(parts[0]);
+                        String name = parts[1];
+                        String phone = parts[2];
+                        employees.add(new Employee(id, name, phone, "Staff")); // Default job title
+                    }
                 }
+            }
+            scanner.close();
 
-            }
-            StringBuilder result = new StringBuilder();
-            for(int i=0;i< arr.length;i++){
-                result.append(arr[i]).append(",");
-            }
-            try(PrintWriter writer = new PrintWriter(data)){
-                writer.write(result.toString());
-                writer.close();
-            }
-
+            System.out.println("✓ Loaded " + employees.size() + " employees from " + file.getAbsolutePath());
 
         } catch (FileNotFoundException e) {
-            System.out.println("IDC");
+            System.out.println("⚠ Employee file not found: " + EMPLOYEES_FILE);
+        } catch (Exception e) {
+            System.err.println("✗ Error reading employees: " + e.getMessage());
+            e.printStackTrace();
         }
 
-    }
-    public void addEmployee(String name,String phone,String password){
-
-    }
-    public void deleteEmployee(int id){
-
-    }
-    public void updateEmployee(int id,String name,String phone,String password){
-
-    }
-    public void addRoom(String type,int price){
-
-    }
-    public void deleteRoom(int id){
-
-    }
-    public void updateRoom(int id,String type,int price){
-
-    }
-    public  void addService(String type,int price,String description){
-
-    }
-    public void deleteService(int id){
-
-    }
-    public void updateService(int id,String type,int price,String description){
+        return employees;
 
     }
 
+    // Get all customers - FIXED VERSION
+    public static ArrayList<Customer> getCustomers() {
+        ArrayList<Customer> customers = new ArrayList<>();
+        try {
+            File file = new File(CUSTOMERS_FILE);  // Use the CONSTANT, not local variable
+            System.out.println("Looking for customer file at: " + file.getAbsolutePath());
+
+            if (!file.exists()) {
+                System.out.println("⚠ Customer file doesn't exist yet. Creating empty file.");
+                file.getParentFile().mkdirs();  // Create directories
+                file.createNewFile();
+                return customers;
+            }
+
+            if (file.length() == 0) {
+                System.out.println("ℹ Customer file is empty");
+                return customers;
+            }
+
+            Scanner scanner = new Scanner(file);
+            int count = 0;
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine().trim();
+                if (!line.isEmpty()) {
+                    String[] parts = line.split("/");
+                    if (parts.length >= 3) {
+                        int id = Integer.parseInt(parts[0]);
+                        String name = parts[1];
+                        String phone = parts[2];
+                        customers.add(new Customer(id, name, phone));
+                        count++;
+                    } else {
+                        System.err.println("⚠ Invalid customer data: " + line);
+                    }
+                }
+            }
+            scanner.close();
+
+            System.out.println("✓ Loaded " + count + " customers from " + file.getAbsolutePath());
+
+        } catch (FileNotFoundException e) {
+            System.out.println("⚠ Customer file not found: " + CUSTOMERS_FILE);
+        } catch (Exception e) {
+            System.err.println("✗ Error reading customers: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return customers;
+    }
+
+    // Get single employee by ID
     public static Employee getEmployee(int id) {
-        Employee employee =new Employee(1,"sofa","01013292553","12345678");
-        try{
-            File file = new File(employees);
-            Scanner dataSS = new Scanner(file);
-            String read = dataSS.nextLine();
-            String[] records = read.split(",");
-            for(int i=0;i< records.length;i++){
-                String[] read2 = records[i].split("/");
-                if(id==Integer.parseInt(read2[0])){
-                    employee= new Employee(Integer.parseInt(read2[0]),read2[1],read2[2],read2[3]);
+        ArrayList<Employee> employees = getEmployees();
+        for (Employee emp : employees) {
+            if (emp.getId() == id) {
+                return emp;
+            }
+        }
+        return new Employee(1, "Default", "0000000000", "Staff");
+    }
+
+    // Get single customer by ID
+    public static Customer getCustomer(int id) {
+        ArrayList<Customer> customers = getCustomers();
+        for (Customer cust : customers) {
+            if (cust.getId() == id) {
+                return cust;
+            }
+        }
+        return new Customer(1, "Default", "0000000000");
+    }
+
+
+    // Debug method to check file contents
+    public static void debugFileContents(String filename) {
+        System.out.println("\n=== Debug: " + filename + " ===");
+        try {
+            File file = new File(filename);
+            System.out.println("File exists: " + file.exists());
+            System.out.println("Path: " + file.getAbsolutePath());
+
+            if (file.exists()) {
+                Scanner scanner = new Scanner(file);
+                int lineNum = 1;
+                while (scanner.hasNextLine()) {
+                    String line = scanner.nextLine();
+                    System.out.println(lineNum + ": " + line);
+                    lineNum++;
                 }
-
+                scanner.close();
             }
-
-        } catch (FileNotFoundException e) {
-            System.out.println("IDC");
+        } catch (Exception e) {
+            System.err.println("Debug error: " + e.getMessage());
         }
-        return employee;
-    }
-    public static ArrayList<Employee> getEmployees(){
-        ArrayList<Employee> attributes =new ArrayList<>();
-        try{
-            File file = new File(employees);
-            Scanner dataSS = new Scanner(file);
-            String read = dataSS.nextLine();
-            String[] records = read.split(",");
-            for(int i=0;i< records.length;i++){
-                String[] read2 = records[i].split("/");
-                attributes.add(new Employee(Integer.parseInt(read2[0]), read2[1],read2[2], read2[3]));
-            }
-
-        } catch (FileNotFoundException e) {
-            System.out.println("IDC");
-        }
-        return attributes;
-    }
-    public static ArrayList<Customer> getCustomers(){
-        ArrayList<Customer> arr1=new ArrayList<>();
-        try{
-            File data = new File(customers);
-            Scanner dataS = new Scanner(data);
-            String tmp=dataS.nextLine();
-            String[] arr= tmp.split(",");
-            for(int i=0;i< arr.length;i++){
-                String[] tmp2 = arr[i].split("/");
-                arr1.add(new Customer(Integer.parseInt(tmp2[0]), tmp2[1],tmp2[2], Integer.parseInt(tmp2[3])));
-            }
-
-        } catch (FileNotFoundException e) {
-            System.out.println("IDC");
-        }
-        return arr1;
-    }
-    public static Customer getCustomer(int id){
-        Customer arr1=new Customer(1,"SOFA","01013292553",0);
-        try{
-            File data = new File(customers);
-            Scanner dataS = new Scanner(data);
-            String tmp=dataS.nextLine();
-            String[] arr= tmp.split(",");
-            for(int i=0;i< arr.length;i++){
-                String[] tmp2 = arr[i].split("/");
-                if(Integer.parseInt(tmp2[0])==id){
-                    arr1 = new Customer(Integer.parseInt(tmp2[0]), tmp2[1],tmp2[2], Integer.parseInt(tmp2[3]));
-                    break;
-                }
-
-            }
-
-        } catch (FileNotFoundException e) {
-            System.out.println("IDC");
-        }
-        return arr1;
+        System.out.println("=== End Debug ===\n");
     }
 
-    public static boolean exists(String name,String password){
-        boolean exist=false;
-        ArrayList<Employee> EMPLOYEES=AdminController.getEmployees();
-        for (int i=0;i<EMPLOYEES.size();i++){
-            if(EMPLOYEES.get(i).getName().equals(name) && EMPLOYEES.get(i).getPassword().equals(password) ){
-                exist =true;
-                break;
-            }
-        }
-        return exist;
-    }
-    public static ArrayList<Customer> getCustomers(ArrayList<Integer> wanted){
-        ArrayList<Customer> arr1=new ArrayList<>();
-        try{
-            File data = new File(customers);
-            Scanner dataS = new Scanner(data);
-            String tmp=dataS.nextLine();
-            String[] arr= tmp.split(",");
-            for(int i=0;i< arr.length;i++){
-                String[] tmp2 = arr[i].split("/");
-                if (wanted.contains(Integer.parseInt(tmp2[0]))){
-                    arr1.add(new Customer(Integer.parseInt(tmp2[0]), tmp2[1],tmp2[2], Integer.parseInt(tmp2[3])));
-                }
+    // NEW: Test method to verify everything works
+    public static void testFileOperations() {
+        System.out.println("\n=== TESTING FILE OPERATIONS ===");
 
-            }
+        // Create test customers
+        List<Customer> testCustomers = new ArrayList<>();
+        testCustomers.add(new Customer(1, "Test Customer 1", "111-111-1111"));
+        testCustomers.add(new Customer(2, "Test Customer 2", "222-222-2222"));
 
-        } catch (FileNotFoundException e) {
-            System.out.println("IDC");
+        // Save test data
+        System.out.println("Saving " + testCustomers.size() + " test customers...");
+        saveCustomers(testCustomers);
+
+        // Read back
+        System.out.println("Reading customers back...");
+        List<Customer> loaded = getCustomers();
+
+        // Compare
+        if (testCustomers.size() == loaded.size()) {
+            System.out.println("✓ SUCCESS: Data saved and loaded correctly!");
+        } else {
+            System.out.println("✗ FAILURE: Expected " + testCustomers.size() +
+                    " but got " + loaded.size());
         }
-        return arr1;
+
+        // Show debug info
+        debugFileContents(CUSTOMERS_FILE);
     }
 }

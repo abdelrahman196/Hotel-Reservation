@@ -2,26 +2,42 @@ package app;
 
 public class Service {
 
-    private int ID;
+    private int id;
     private String name;
-    private String description;
     private int price;
     private boolean available;
+    private int usageCount;
 
-    public Service(int ID, String name, String description, int price, boolean available) {
-        this.ID = ID;
+
+    public Service(int id, String name, double price) {
+        this(id, name, price, 0);
+    }
+
+    public Service(int id, String name, double price, int usageCount) {
+        this.id = id;
         this.name = name;
-        this.description = description;
-        this.price = price;
-        this.available = available;
+        this.price = (int)price;
+        this.usageCount = usageCount;
     }
 
-    public int getID() {
-        return ID;
+    public void setUsageCount(int usageCount) {
+        this.usageCount = usageCount;
     }
 
-    public void setID(int ID) {
-        this.ID = ID;
+    public int getUsageCount() {
+        return usageCount;
+    }
+
+    public void incrementUsage() {
+        this.usageCount++;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public void setName(String name) {
@@ -30,14 +46,6 @@ public class Service {
 
     public String getName() {
         return name;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public void setPrice(int price) {
@@ -58,6 +66,6 @@ public class Service {
 
 
     public String parsePrint(){
-        return ("ID:" + ID + "\nName:" + name + "\ndescription:" + description + "\nprice:" + String.valueOf(price));
+        return ("ID:" + id + "\nName:" + name + "\nprice:" + String.valueOf(price));
     }
 }
